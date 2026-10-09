@@ -2,10 +2,7 @@ package com.musicexchange.controllers;
 
 import com.musicexchange.dto.*;
 import com.musicexchange.models.UserRole;
-import com.musicexchange.service.ArtistService;
-import com.musicexchange.service.FanService;
-import com.musicexchange.service.JwtService;
-import com.musicexchange.service.SuggestedArtistsService;
+import com.musicexchange.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,9 +21,9 @@ public class UserRestApi {
 
     private final ArtistService artistService;
     private final FanService fanService;
-    private final SuggestedArtistsService suggestedArtistsService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     @GetMapping("/artist/{artistId}")
     public ResponseEntity<ArtistResponseDto> getArtist(@PathVariable("artistId") Long id) {
@@ -48,50 +45,57 @@ public class UserRestApi {
     }
 
     //this class is mainly for testing artists populated on fan dashboard
-    @GetMapping("fan/suggested-artists")
+   /* @GetMapping("fan/suggested-artists")
     public ResponseEntity<List<SuggestedArtistsResponseDto>> getAllSuggestedArtists() {
         List<SuggestedArtistsResponseDto> artists = suggestedArtistsService.getAllSuggestedArtists();
         return ResponseEntity.ok(artists);
-    }
+    }*/
 
     @PostMapping("/artist-signup")
-    public ResponseEntity<ArtistResponseDto> artistSignup(@Valid @RequestBody ArtistRequestDto requestDto) {
+    public ResponseEntity<ArtistResponseDto> artistSignup(@Valid @RequestBody UserRequestDto requestDto) {
         ArtistResponseDto artistResponseDto;
-        if(requestDto.getRole() == UserRole.ARTIST) {
-            artistResponseDto = artistService.createArtist(requestDto);
-            return ResponseEntity.ok(artistResponseDto);
+
+            String subject = "Account creation";
+            String body = "Welcome" + requestDto.getUsername() + "your account is successfully created";
+            emailService.sendEmailToArtist(requestDto.getEmail(), subject, body);
+
+            if (requestDto.getRole() == UserRole.ARTIST) {
+                artistResponseDto = artistService.createArtist(requestDto);
+                return ResponseEntity.ok(artistResponseDto);
+
+            }
+            return ResponseEntity.badRequest().build();
+        }
+
+
+        @PostMapping("/fan-signup")
+        public ResponseEntity<FanResponseDto> fanSignup (@Valid @RequestBody FanRequestDto fanRequestDto){
+            String subject = "Account creation";
+            String body = "Welcome" + fanRequestDto.getUsername() + "your account is succesfully created";
+            if (fanRequestDto.getRole() == UserRole.FAN) {
+                FanResponseDto fanResponseDto = fanService.createFan(fanRequestDto);
+                emailService.sendEmailToFan(fanRequestDto.getEmail(), subject, body);
+                return ResponseEntity.ok(fanResponseDto);
+
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         }
-        return ResponseEntity.badRequest().build();
-    }
 
+        @PostMapping("/login")
+        public ResponseEntity<TokenResponseDto> login (@Valid @RequestBody LoginRequestDto loginRequestDto){
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequestDto.getUsername(),
+                            loginRequestDto.getPassword()
+                    )
+            );
 
-    @PostMapping("/fan-signup")
-    public ResponseEntity<FanResponseDto> fanSignup(@Valid @RequestBody FanRequestDto fanRequestDto){
-        if (fanRequestDto.getRole() == UserRole.FAN) {
-            FanResponseDto fanResponseDto = fanService.createFan(fanRequestDto);
-            //if (object2 instanceof FanResponseDto fan) {
-            return ResponseEntity.ok(fanResponseDto);
-            //}
+            String accessToken = jwtService.generateToken(loginRequestDto.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(loginRequestDto.getUsername());
+
+            return ResponseEntity.ok(new TokenResponseDto(accessToken, refreshToken));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequestDto.getUsername(),
-                        loginRequestDto.getPassword()
-                )
-        );
-
-        String accessToken = jwtService.generateToken(loginRequestDto.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(loginRequestDto.getUsername());
-
-        return ResponseEntity.ok(new TokenResponseDto(accessToken, refreshToken));
-    }
-}
 
 

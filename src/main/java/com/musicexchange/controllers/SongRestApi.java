@@ -4,6 +4,7 @@ import com.musicexchange.dto.SongRequestDto;
 import com.musicexchange.dto.SongResponseDto;
 import com.musicexchange.service.SongService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/songs")
 public class SongRestApi {
 
     private final SongService songService;
 
-    public SongRestApi(SongService songService) {
-        this.songService = songService;
-    }
+
 
     @PostMapping
     public ResponseEntity<SongResponseDto> addSong(@Valid @RequestBody SongRequestDto request) {

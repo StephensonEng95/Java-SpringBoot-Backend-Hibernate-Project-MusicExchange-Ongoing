@@ -1,6 +1,6 @@
 package com.musicexchange.service;
 
-import com.musicexchange.dto.ArtistRequestDto;
+import com.musicexchange.dto.UserRequestDto;
 import com.musicexchange.models.Artist;
 import com.musicexchange.models.UserRole;
 import com.musicexchange.repository.ArtistRepository;
@@ -40,7 +40,7 @@ class ArtistServiceTest {
 
         when(artistRepo.save(any(Artist.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ArtistRequestDto artistRequestDto = new ArtistRequestDto(user, email, pass, role);
+        UserRequestDto artistRequestDto = new UserRequestDto(user, email, pass, role);
 
         // Act
         artistService.createArtist(artistRequestDto);
@@ -58,7 +58,7 @@ class ArtistServiceTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            artistService.createArtist(new ArtistRequestDto(user, "test1@test1.com", "dummypass123.",role));
+            artistService.createArtist(new UserRequestDto(user, "test1@test1.com", "dummypass123.",role));
         });
 
         assertEquals("Artist username already exists: " + user, exception.getMessage());
@@ -76,7 +76,7 @@ class ArtistServiceTest {
 
         // Act & Assert
         RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
-            artistService.createArtist(new ArtistRequestDto(user, emailExists, "pass124", role));
+            artistService.createArtist(new UserRequestDto(user, emailExists, "pass124", role));
         });
 
         assertEquals("Artist email already exists: " + emailExists, runtimeException.getMessage());

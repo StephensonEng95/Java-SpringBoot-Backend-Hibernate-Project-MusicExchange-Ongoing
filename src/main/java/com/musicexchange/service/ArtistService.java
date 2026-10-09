@@ -1,6 +1,6 @@
 package com.musicexchange.service;
 
-import com.musicexchange.dto.ArtistRequestDto;
+import com.musicexchange.dto.UserRequestDto;
 import com.musicexchange.dto.ArtistResponseDto;
 import com.musicexchange.exceptions.DuplicateResourceException;
 import com.musicexchange.exceptions.ResourceNotFoundException;
@@ -36,7 +36,7 @@ public class ArtistService {
         return mapToResponseDto(artist);
     }
 
-    public ArtistResponseDto createArtist(ArtistRequestDto requestDto) {
+    public ArtistResponseDto createArtist(UserRequestDto requestDto) {
         if (artistRepo.existsByUsername(requestDto.getUsername())) {
             throw new DuplicateResourceException("Artist username already exists: " + requestDto.getUsername());
         }

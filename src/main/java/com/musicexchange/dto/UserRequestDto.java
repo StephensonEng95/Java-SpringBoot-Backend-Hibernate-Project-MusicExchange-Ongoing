@@ -1,15 +1,20 @@
 package com.musicexchange.dto;
 
+import com.musicexchange.models.UserRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-//@NoArgsConstructor
-public class FanRequestDto extends UserRequestDto{
+@NoArgsConstructor
+public class UserRequestDto {
 
-
-   /* @NotBlank(message = "username required")
+    @NotBlank(message = "username required")
     @Size(min = 3, max = 50, message = "username should be between 3 and 50 chars long")
     private String username;
 
@@ -22,5 +27,5 @@ public class FanRequestDto extends UserRequestDto{
     private String password;
 
     @NotNull(message = "role should be specified")
-    private UserRole role;*/
+    private UserRole role;
 }

@@ -2,6 +2,7 @@ package com.musicexchange.service;
 
 import com.musicexchange.dto.FanRequestDto;
 import com.musicexchange.dto.FanResponseDto;
+import com.musicexchange.dto.UserRequestDto;
 import com.musicexchange.exceptions.DuplicateResourceException;
 import com.musicexchange.exceptions.ResourceNotFoundException;
 import com.musicexchange.models.Fan;
@@ -20,19 +21,19 @@ public class FanService {
 
 
     @Transactional
-    public FanResponseDto createFan(FanRequestDto fanRequestDto) {
-        if (fanRepository.existsByUsername(fanRequestDto.getUsername())) {
+    public FanResponseDto createFan(UserRequestDto userRequestDto) {
+        if (fanRepository.existsByUsername(userRequestDto.getUsername())) {
             throw new DuplicateResourceException("Username is already taken");
         }
 
-        if (fanRepository.existsByEmail(fanRequestDto.getEmail())) {
+        if (fanRepository.existsByEmail(userRequestDto.getEmail())) {
             throw new DuplicateResourceException("Email is already taken");
         }
 
         Fan fan = new Fan();
-        fan.setUsername(fanRequestDto.getUsername());
-        fan.setEmail(fanRequestDto.getEmail());
-        fan.setPassword(passwordEncoder.encode(fanRequestDto.getPassword()));
+        fan.setUsername(userRequestDto.getUsername());
+        fan.setEmail(userRequestDto.getEmail());
+        fan.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
 
         Fan savedFan = fanRepository.save(fan);
         return mapToResponseDto(savedFan);
